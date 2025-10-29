@@ -40,7 +40,7 @@ dependencies {
 }
 
 // Coordinates used by JitPack. Replace 'User' with your GitHub username when consuming.
-group = 'com.github.User'
+group = 'com.github.AlpsDog'
 version = android.defaultConfig.versionName
 
 afterEvaluate {
