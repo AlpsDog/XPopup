@@ -41,7 +41,7 @@ dependencies {
 
 // Coordinates used by JitPack. Replace 'User' with your GitHub username when consuming.
 group = 'com.github.AlpsDog'
-version = android.defaultConfig.versionName
+version = "2.10.5"
 
 afterEvaluate {
     publishing {
