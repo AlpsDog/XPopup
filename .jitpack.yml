@@ -1,8 +1,0 @@
-jdk:
-  - openjdk17
-
-install:
-  - ./gradlew clean -Pgroup=com.github.AlpsDog -Pversion=2.10.1 assemble
-
-build:
-  - ./gradlew clean -Pgroup=com.github.AlpsDog -Pversion=2.10.1 build

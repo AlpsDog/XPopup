@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion 35
@@ -16,6 +17,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    // Enable publishing the release variant for maven-publish
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
@@ -29,4 +37,21 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.12.0'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.3.1"
+}
+
+// Coordinates used by JitPack. Replace 'User' with your GitHub username when consuming.
+group = 'com.github.User'
+version = android.defaultConfig.versionName
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                // Use the repository name as artifactId so consumers can use
+                // implementation "com.github.User:XPopup:Tag"
+                artifactId = 'XPopup'
+            }
+        }
+    }
 }
