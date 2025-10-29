@@ -87,7 +87,7 @@ Gif录制的有些卡顿，真机预览效果更佳。扫描二维码下载Demo�
 
 [![](https://jitpack.io/v/li-xiaojun/XPopup.svg)](https://jitpack.io/#li-xiaojun/XPopup)
 ```
-implementation 'com.github.li-xiaojun:XPopup:版本号看上面'
+implementation 'com.github.AlpsDog:XPopup:版本号':版本号看上面'
 ```
 jitpack还要求在工程根目录的`build.gradle`中添加如下：
 ```
