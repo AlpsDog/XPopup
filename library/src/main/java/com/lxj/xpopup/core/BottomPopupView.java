@@ -1,11 +1,16 @@
 package com.lxj.xpopup.core;
 
 import android.content.Context;
-import android.util.Log;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import com.lxj.xpopup.R;
 import com.lxj.xpopup.animator.PopupAnimator;
 import com.lxj.xpopup.animator.TranslateAnimator;
@@ -21,13 +26,15 @@ import com.lxj.xpopup.widget.SmartDragLayout;
  */
 public class BottomPopupView extends BasePopupView {
     protected SmartDragLayout bottomPopupContainer;
+
     public BottomPopupView(@NonNull Context context) {
         super(context);
         bottomPopupContainer = findViewById(R.id.bottomPopupContainer);
     }
 
-    protected void addInnerContent(){
+    protected void addInnerContent() {
         View contentView = LayoutInflater.from(getContext()).inflate(getImplLayoutId(), bottomPopupContainer, false);
+        setupRootWindowInsetsOnlyBottom(contentView);
         bottomPopupContainer.addView(contentView);
     }
 
@@ -39,16 +46,16 @@ public class BottomPopupView extends BasePopupView {
     @Override
     protected void initPopupContent() {
         super.initPopupContent();
-        if(bottomPopupContainer.getChildCount()==0){
+        if (bottomPopupContainer.getChildCount() == 0) {
             addInnerContent();
         }
         bottomPopupContainer.setDuration(getAnimationDuration());
         bottomPopupContainer.enableDrag(popupInfo.enableDrag);
-        if(popupInfo.enableDrag) {
+        if (popupInfo.enableDrag) {
             popupInfo.popupAnimation = null;
             getPopupImplView().setTranslationX(popupInfo.offsetX);
             getPopupImplView().setTranslationY(popupInfo.offsetY);
-        }else {
+        } else {
             getPopupContentView().setTranslationX(popupInfo.offsetX);
             getPopupContentView().setTranslationY(popupInfo.offsetY);
         }
@@ -62,29 +69,33 @@ public class BottomPopupView extends BasePopupView {
             @Override
             public void onClose() {
                 beforeDismiss();
-                if(popupInfo!=null && popupInfo.xPopupCallback!=null) popupInfo.xPopupCallback.beforeDismiss(BottomPopupView.this);
+                if (popupInfo != null && popupInfo.xPopupCallback != null)
+                    popupInfo.xPopupCallback.beforeDismiss(BottomPopupView.this);
                 doAfterDismiss();
             }
 
             @Override
             public void onDrag(int value, float percent, boolean isScrollUp) {
-                if(popupInfo==null)return;
-                if(popupInfo.xPopupCallback!=null) popupInfo.xPopupCallback.onDrag(BottomPopupView.this, value, percent,isScrollUp);
-                if (popupInfo.hasShadowBg && !popupInfo.hasBlurBg) setBackgroundColor(shadowBgAnimator.calculateBgColor(percent));
+                if (popupInfo == null) return;
+                if (popupInfo.xPopupCallback != null)
+                    popupInfo.xPopupCallback.onDrag(BottomPopupView.this, value, percent, isScrollUp);
+                if (popupInfo.hasShadowBg && !popupInfo.hasBlurBg)
+                    setBackgroundColor(shadowBgAnimator.calculateBgColor(percent));
             }
 
             @Override
-            public void onOpen() { }
+            public void onOpen() {
+            }
         });
 
         bottomPopupContainer.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(popupInfo!=null){
-                    if(popupInfo.xPopupCallback!=null){
+                if (popupInfo != null) {
+                    if (popupInfo.xPopupCallback != null) {
                         popupInfo.xPopupCallback.onClickOutside(BottomPopupView.this);
                     }
-                    if(popupInfo.isDismissOnTouchOutside!=null){
+                    if (popupInfo.isDismissOnTouchOutside != null) {
                         dismiss();
                     }
                 }
@@ -101,61 +112,63 @@ public class BottomPopupView extends BasePopupView {
 
     @Override
     public void doShowAnimation() {
-        if(popupInfo==null) return;
-        if(popupInfo.enableDrag){
-            if (popupInfo.hasBlurBg && blurAnimator!=null) {
+        if (popupInfo == null) return;
+        if (popupInfo.enableDrag) {
+            if (popupInfo.hasBlurBg && blurAnimator != null) {
                 blurAnimator.animateShow();
             }
             bottomPopupContainer.open();
-        }else {
+        } else {
             super.doShowAnimation();
         }
     }
 
     @Override
     public void doDismissAnimation() {
-        if(popupInfo==null) return;
-        if(popupInfo.enableDrag){
-            if(popupInfo.hasBlurBg && blurAnimator!=null){
+        if (popupInfo == null) return;
+        if (popupInfo.enableDrag) {
+            if (popupInfo.hasBlurBg && blurAnimator != null) {
                 blurAnimator.animateDismiss();
             }
             bottomPopupContainer.close();
-        }else {
+        } else {
             super.doDismissAnimation();
         }
     }
 
     protected void doAfterDismiss() {
-        if(popupInfo==null) return;
-        if(popupInfo.enableDrag){
+        if (popupInfo == null) return;
+        if (popupInfo.enableDrag) {
             if (popupInfo.autoOpenSoftInput)
                 KeyboardUtils.hideSoftInput(this);
             handler.removeCallbacks(doAfterDismissTask);
             handler.postDelayed(doAfterDismissTask, 0);
-        }else {
+        } else {
             super.doAfterDismiss();
         }
     }
 
-    private TranslateAnimator translateAnimator ;
+    private TranslateAnimator translateAnimator;
+
     @Override
     protected PopupAnimator getPopupAnimator() {
-        if(popupInfo==null) return null;
-        if(translateAnimator==null) translateAnimator = new TranslateAnimator(getPopupContentView(), getAnimationDuration(),
-                PopupAnimation.TranslateFromBottom);
+        if (popupInfo == null) return null;
+        if (translateAnimator == null)
+            translateAnimator = new TranslateAnimator(getPopupContentView(), getAnimationDuration(),
+                    PopupAnimation.TranslateFromBottom);
         return popupInfo.enableDrag ? null : translateAnimator;
     }
 
     @Override
     public void dismiss() {
-        if(popupInfo==null) return;
-        if(popupInfo.enableDrag){
+        if (popupInfo == null) return;
+        if (popupInfo.enableDrag) {
             if (popupStatus == PopupStatus.Dismissing) return;
             popupStatus = PopupStatus.Dismissing;
             if (popupInfo.autoOpenSoftInput) KeyboardUtils.hideSoftInput(this);
             clearFocus();
             bottomPopupContainer.close();
-        }else {
+        } else {
             super.dismiss();
         }
     }
@@ -171,11 +184,24 @@ public class BottomPopupView extends BasePopupView {
 
     @Override
     protected void onDetachedFromWindow() {
-        if(popupInfo!=null && !popupInfo.enableDrag && translateAnimator!=null){
+        if (popupInfo != null && !popupInfo.enableDrag && translateAnimator != null) {
             getPopupContentView().setTranslationX(translateAnimator.startTranslationX);
             getPopupContentView().setTranslationY(translateAnimator.startTranslationY);
             translateAnimator.hasInit = true;
         }
         super.onDetachedFromWindow();
+    }
+
+    public void setupRootWindowInsetsOnlyBottom(View rootView) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView, new androidx.core.view.OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                    Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), systemBars.bottom);
+                    return insets;
+                }
+            });
+        }
     }
 }
